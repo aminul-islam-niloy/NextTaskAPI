@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NextTaskAPI.Data;
+using NextTaskAPI.Models;
+using NextTaskAPI.Repositories;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,8 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register the EmployeeRepository for dependency injection
-//builder.Services.AddScoped<EmployeeRepository>();
+builder.Services.AddScoped<ITaskRepository, MyTaskRepository>();
 
 // Enable CORS to allow requests from the Angular app
 builder.Services.AddCors(options =>
