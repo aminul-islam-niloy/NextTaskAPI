@@ -1,0 +1,77 @@
+
+  
+  .task-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    border-radius: 10px;
+    color: #fff;
+  }
+  
+  .mat-card-title,
+  .mat-card-subtitle {
+    color: #ffffff;
+  }
+  
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .container-fluid{
+    margin-top: 10px;
+  }
+
+  .square-button {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .project-icon {
+    font-size: 36px;
+  }
+
+
+  .task-card {
+    width: 380px; /* Wider card */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s;
+    
+  }
+  
+  .task-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    border-radius: 10px;
+    color: #fff;
+  }
+  
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .example-spacer {
+    flex: 1 1 auto;
+  }
+
+
+ 
+  

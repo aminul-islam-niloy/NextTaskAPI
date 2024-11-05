@@ -15,10 +15,12 @@ import { CommonModule } from '@angular/common';
     MaterialModule,CommonModule
   ]
 })
-export class TaskComponent implements OnInit {
+
+
+export class TaskComponent {
   tasksList: Task[] = [];
-  private taskService = inject(TaskService);
-  private dialog = inject(MatDialog);
+
+  constructor(private dialog: MatDialog, private taskService: TaskService) {}
 
   ngOnInit(): void {
     this.getAllTasks();
@@ -32,16 +34,47 @@ export class TaskComponent implements OnInit {
 
   openAddTaskDialog() {
     const dialogRef = this.dialog.open(AddTaskDialogComponent);
+
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.getAllTasks(); // Refresh the task list after adding a new task
-      }
+      if (result) this.getAllTasks(); // Refresh list after adding a task
+    });
+  }
+
+  openEditTaskDialog(task: Task) {
+    const dialogRef = this.dialog.open(AddTaskDialogComponent, { data: task });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) this.getAllTasks(); // Refresh list after editing a task
     });
   }
 
   deleteTask(id: number) {
-    this.taskService.DeleteTask(id).subscribe(() => {
-      this.getAllTasks(); // Refresh the task list after deletion
-    });
+    this.taskService.DeleteTask(id).subscribe(() => this.getAllTasks());
   }
+
+  toggleCompleted(task: Task) {
+    if (task.isCompleted) {
+      task.isMissed = false; // Reset missed if task is completed
+    }
+    this.taskService.UpdateTask(task).subscribe();
+  }
+
+  getCardStyle(task: any): any {
+    const colorMap: { [key: string]: string } = {
+      '2024-11-05': '#FFCDD2', // Example color for tasks ending on Nov 5
+      '2024-11-10': '#C8E6C9', // Example color for tasks ending on Nov 10
+      // Add more date-color mappings as needed
+    };
+    
+    const endDate = task.endTime.toISOString().split('T')[0]; // Format date as 'YYYY-MM-DD'
+    const backgroundColor = colorMap[endDate] || '#FFF';
+  
+    return {
+      'background-color': backgroundColor,
+      color: '#000',
+    };
+  }
+  
+
+
 }
