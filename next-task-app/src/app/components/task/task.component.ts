@@ -1,49 +1,27 @@
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Task } from '../../models/task';
 import { TaskService } from '../../services/task.service';
+import { MatDialog } from '@angular/material/dialog';
+import { AddTaskDialogComponent } from './add-task-dialog/add-task-dialog.component';
+import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-task',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './task.component.html',
   styleUrls: ['./task.component.css'],
+  standalone: true,
+  imports: [
+    MaterialModule,CommonModule
+  ]
 })
 export class TaskComponent implements OnInit {
-  @ViewChild('myModal') model: ElementRef | undefined;
-
   tasksList: Task[] = [];
-  taskService = inject(TaskService);
-  taskForm: FormGroup;
-
-  constructor(private fb: FormBuilder) {
-    this.taskForm = this.fb.group({
-      name: [''],
-      startTime: [''],
-      endTime: [''],
-      isCompleted: [false],
-      isMissed: [false],
-    });
-  }
+  private taskService = inject(TaskService);
+  private dialog = inject(MatDialog);
 
   ngOnInit(): void {
     this.getAllTasks();
-  }
-
-  openModal() {
-    const taskModal = document.getElementById('myModal');
-    if (taskModal) {
-      taskModal.style.display = 'block';
-    }
-  }
-
-  closeModal() {
-    this.taskForm.reset();
-    if (this.model) {
-      this.model.nativeElement.style.display = 'none';
-    }
   }
 
   getAllTasks() {
@@ -52,20 +30,18 @@ export class TaskComponent implements OnInit {
     });
   }
 
-  addTask() {
-    const taskData: Task = this.taskForm.value;
-    this.taskService.AddTask(taskData).subscribe((res) => {
-      this.getAllTasks(); // Refresh the task list after adding
-      this.closeModal(); // Close the modal
+  openAddTaskDialog() {
+    const dialogRef = this.dialog.open(AddTaskDialogComponent);
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.getAllTasks(); // Refresh the task list after adding a new task
+      }
     });
   }
-  
+
   deleteTask(id: number) {
     this.taskService.DeleteTask(id).subscribe(() => {
       this.getAllTasks(); // Refresh the task list after deletion
     });
   }
-  
-
-
 }
