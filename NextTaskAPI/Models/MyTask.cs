@@ -1,7 +1,10 @@
-﻿namespace NextTaskAPI.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace NextTaskAPI.Models
 {
-    public class Task
+    public class MyTask
     {
+        [Key]
         public int Id { get; set; }
         public string Name { get; set; }
         public DateTime StartTime { get; set; }

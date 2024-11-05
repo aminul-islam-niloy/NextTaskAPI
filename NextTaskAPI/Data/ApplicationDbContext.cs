@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NextTaskAPI.Models;
 
 namespace NextTaskAPI.Data
 {
@@ -6,6 +7,7 @@ namespace NextTaskAPI.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<Task> Tasks { get; set; }
+        public DbSet<MyTask> MyTasks { get; set; }
+
     }
 }
