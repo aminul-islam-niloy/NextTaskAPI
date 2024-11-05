@@ -1,1 +1,60 @@
-<p>task works!</p>
+<div class="container-fluid">
+    <div class="row p-2 bg-info">
+      <div class="col-6">
+        <h3>Task List</h3>
+      </div>
+      <div class="col-6 text-end">
+        <button class="btn btn-warning" (click)="openModal()">Add Task</button>
+      </div>
+    </div>
+  
+    <div *ngIf="tasksList && tasksList.length > 0">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th class="text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of tasksList; let i = index">
+            <td>{{ item.name | uppercase }}</td>
+            <td>{{ item.startTime | date: 'short' }}</td>
+            <td>{{ item.endTime | date: 'short' }}</td>
+            <td class="text-center">
+              <button (click)="deleteTask(item.id)" class="btn btn-danger">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="tasksList.length === 0">
+      <h5 class="text-center p-5">Tasks Not Found</h5>
+    </div>
+    
+    <!-- Add Task Modal -->
+    <div id="myModal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span (click)="closeModal()" class="close">&times;</span>
+        <h2>Add Task</h2>
+        <form [formGroup]="taskForm" (ngSubmit)="addTask()">
+          <div>
+            <label>Name</label>
+            <input formControlName="name" required />
+          </div>
+          <div>
+            <label>Start Time</label>
+            <input type="datetime-local" formControlName="startTime" required />
+          </div>
+          <div>
+            <label>End Time</label>
+            <input type="datetime-local" formControlName="endTime" required />
+          </div>
+          <button type="submit" class="btn btn-success">Save Task</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  
