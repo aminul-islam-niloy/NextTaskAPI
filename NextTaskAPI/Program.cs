@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NextTaskAPI.Data;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,8 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Configure Entity Framework Core with SQL Server
-//builder.Services.AddDbContext<AppDbContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("EmployeeDbConnection")));
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register the EmployeeRepository for dependency injection
 //builder.Services.AddScoped<EmployeeRepository>();
@@ -28,7 +29,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseCors("AllowAllOrigins");
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -36,9 +38,26 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
+
+
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next.Invoke();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An error occurred: {ex.Message}");
+
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("An unexpected error occurred. Please try again.");
+    }
+});
 
 app.MapControllers();
 
 app.Run();
+
+
