@@ -33,11 +33,11 @@
         <mat-card-header>
           <mat-card-title>{{ task.name }}</mat-card-title>
         </mat-card-header>
-    
-        <mat-card-content>
+    <br>
+        <mat-card-content >
           <p>Start: {{ task.startTime | date: 'short' }}</p>
           <p>End: {{ task.endTime | date: 'short' }}</p>
-          <hr>
+        
           <p>Missed: {{ task.isMissed ? 'Yes' : 'No' }}</p>
         </mat-card-content>
         <mat-card-actions align="end">
