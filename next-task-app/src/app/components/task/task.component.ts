@@ -1,10 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { Task } from '../../models/task';
 import { TaskService } from '../../services/task.service';
 import { MatDialog } from '@angular/material/dialog';
 import { AddTaskDialogComponent } from './add-task-dialog/add-task-dialog.component';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
+import { BackgroundTaskService } from '../../services/background-task.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-task',
@@ -12,69 +14,103 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./task.component.css'],
   standalone: true,
   imports: [
-    MaterialModule,CommonModule
+    MaterialModule, CommonModule
   ]
 })
-
-
-export class TaskComponent {
+export class TaskComponent implements OnInit, OnDestroy {
   tasksList: Task[] = [];
+  filteredTasks: Task[] = [];
+  filter: string = 'all'; // Default filter
+  private taskUpdateSubscription: Subscription | undefined;
 
-  constructor(private dialog: MatDialog, private taskService: TaskService) {}
+  constructor(
+    private dialog: MatDialog, 
+    private taskService: TaskService,
+    private backgroundTaskService: BackgroundTaskService, 
+    private cdr: ChangeDetectorRef 
+  ) {}
 
   ngOnInit(): void {
     this.getAllTasks();
-  }
 
-  getAllTasks() {
-    this.taskService.GetTasks().subscribe((res) => {
-      this.tasksList = res;
+    this.taskUpdateSubscription = this.backgroundTaskService.taskUpdated.subscribe(() => {
+      this.getAllTasks(); 
+      this.cdr.detectChanges(); 
     });
   }
 
-  openAddTaskDialog() {
+  ngOnDestroy(): void {
+    this.taskUpdateSubscription?.unsubscribe();
+  }
+
+  getAllTasks(): void {
+    this.taskService.GetTasks().subscribe((res) => {
+      this.tasksList = res;
+      this.applyFilter(); 
+    });
+  }
+
+  openAddTaskDialog(): void {
     const dialogRef = this.dialog.open(AddTaskDialogComponent);
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) this.getAllTasks(); // Refresh list after adding a task
+      if (result) this.getAllTasks(); 
     });
   }
 
-  openEditTaskDialog(task: Task) {
+  openEditTaskDialog(task: Task): void {
     const dialogRef = this.dialog.open(AddTaskDialogComponent, { data: task });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) this.getAllTasks(); // Refresh list after editing a task
+      if (result) this.getAllTasks();
     });
   }
 
-  deleteTask(id: number) {
+  deleteTask(id: number): void {
     this.taskService.DeleteTask(id).subscribe(() => this.getAllTasks());
   }
 
-  toggleCompleted(task: Task) {
+  toggleCompleted(task: Task): void {
     if (task.isCompleted) {
-      task.isMissed = false; // Reset missed if task is completed
+      task.isMissed = false; 
     }
     this.taskService.UpdateTask(task).subscribe();
   }
 
-  getCardStyle(task: any): any {
-    const colorMap: { [key: string]: string } = {
-      '2024-11-05': '#FFCDD2', // Example color for tasks ending on Nov 5
-      '2024-11-10': '#C8E6C9', // Example color for tasks ending on Nov 10
-      // Add more date-color mappings as needed
-    };
-    
-    const endDate = task.endTime.toISOString().split('T')[0]; // Format date as 'YYYY-MM-DD'
-    const backgroundColor = colorMap[endDate] || '#FFF';
+  setFilter(filter: string): void {
+    this.filter = filter;
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    switch (this.filter) {
+      case 'completed':
+        this.filteredTasks = this.tasksList.filter(task => task.isCompleted);
+        break;
+      case 'missed':
+        this.filteredTasks = this.tasksList.filter(task => task.isMissed);
+        break;
+      case 'newest':
+        this.filteredTasks = [...this.tasksList].sort((a, b) => b.id - a.id); // Newest first
+        break;
+      case 'oldest':
+        this.filteredTasks = [...this.tasksList].sort((a, b) => a.id - b.id); // Oldest first
+        break;
+      default:
+        this.filteredTasks = this.tasksList;
+    }
+  }
   
+
+  getCardStyle(task: Task): any {
+    let backgroundColor = '#EDEAF2';
+    if (task.isMissed) backgroundColor = '#FFCDD2'; 
+    else if (task.isCompleted) backgroundColor = '#C8E6C9'; 
+    else if (new Date(task.endTime).toDateString() === new Date().toDateString()) backgroundColor = '#9BB8ED'; 
+
     return {
       'background-color': backgroundColor,
       color: '#000',
     };
   }
-  
-
-
 }

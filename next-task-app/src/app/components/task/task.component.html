@@ -1,59 +1,56 @@
-
 <mat-toolbar>
-    <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <span>Next Task</span>
-    <span class="example-spacer"></span>
-   
-    <button mat-flat-button (click)="openAddTaskDialog()"> <mat-icon>open_in_new</mat-icon>  Add Task</button>
-   
-    <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
-      <mat-icon>favorite</mat-icon>
-    </button>
- 
-    <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
-      <mat-icon>share</mat-icon>
-    </button>
-  </mat-toolbar>
+  <button mat-icon-button aria-label="Menu">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span>Next Task</span>
+  <span class="example-spacer"></span>
 
+  <button mat-flat-button color="primary" (click)="openAddTaskDialog()">
+    <mat-icon>open_in_new</mat-icon> Add Task
+  </button>
 
-<div class="container-fluid " style="margin-top: 30px;margin-bottom: 30px;">
-   
-    <div class="row mt-5">
-      <div class="col-md-4 mb-3" *ngFor="let task of tasksList">
-        <mat-card class="task-card glass-card " style="background: rgb(239, 238, 238);">
-          <mat-card-header style="margin-top: 7px; margin-bottom: 7px; color: rgb(35, 35, 35);">
-            <mat-card-title>{{ task.name }}</mat-card-title>
-   
-            <mat-card-subtitle>
-            
-            </mat-card-subtitle>
-          </mat-card-header>
-          <hr>
-  
-          <mat-card-content style="color: black;" class="d-flex">
-            
-            Start: {{ task.startTime | date: 'short' }} <br>
-            End: {{ task.endTime | date: 'short' }} <br>
-            <hr>
-           
-            Missed: <strong>{{ task.isMissed ? 'Yes' : 'No' }}</strong>
-          </mat-card-content>
+  <button mat-icon-button (click)="setFilter('all')" aria-label="All Task" >
+    <mat-icon>filter_list</mat-icon> 
+  </button>
+  <button mat-icon-button (click)="setFilter('completed')" aria-label="Completed" >
+    <mat-icon>done</mat-icon> 
+  </button>
+  <button mat-icon-button (click)="setFilter('missed')" aria-label="Missed ">
+    <mat-icon>error_outline</mat-icon> 
+  </button>
+  <button mat-icon-button (click)="setFilter('newest')" aria-label="Newest " >
+    <mat-icon>arrow_upward</mat-icon> 
+  </button>
+  <button mat-icon-button (click)="setFilter('oldest')" aria-label="Oldest " >
+    <mat-icon>arrow_downward</mat-icon> 
+  </button>
+</mat-toolbar>
 
-
-  
-          <mat-card-actions align="end">
-            <mat-checkbox [(ngModel)]="task.isCompleted" (change)="toggleCompleted(task)">
-                Completed
-              </mat-checkbox>
-            <button mat-button color="primary" (click)="openEditTaskDialog(task)"> <mat-icon>edit</mat-icon> Edit</button>
-            <button mat-button color="warn" (click)="deleteTask(task.id)"><mat-icon>delete</mat-icon> Delete</button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
+<div class="container-fluid" style="margin-top: 30px; margin-bottom: 30px;">
+  <div class="row mt-5">
+    <div class="col-md-4 mb-3" *ngFor="let task of filteredTasks">
+      <mat-card class="task-card" [ngStyle]="getCardStyle(task)">
+        <mat-card-header>
+          <mat-card-title>{{ task.name }}</mat-card-title>
+        </mat-card-header>
+    <br>
+        <mat-card-content >
+          <p>Start: {{ task.startTime | date: 'short' }}</p>
+          <p>End: {{ task.endTime | date: 'short' }}</p>
+        
+          <p>Missed: {{ task.isMissed ? 'Yes' : 'No' }}</p>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <mat-checkbox [(ngModel)]="task.isCompleted" (change)="toggleCompleted(task)">Completed</mat-checkbox>
+          <button mat-button color="primary" (click)="openEditTaskDialog(task)">
+            <mat-icon>edit</mat-icon> Edit
+          </button>
+          <button mat-button color="warn" (click)="deleteTask(task.id)">
+            <mat-icon>delete</mat-icon> Delete
+          </button>
+        </mat-card-actions>
+      </mat-card>
     </div>
-  
-    <h5 class="text-center p-5" *ngIf="tasksList.length === 0">No Tasks Found</h5>
   </div>
-  
+  <h5 class="text-center p-5" *ngIf="filteredTasks.length === 0">No Tasks Found</h5>
+</div>
