@@ -11,6 +11,9 @@ import {
   TemplatePortal
 } from "./chunk-BJ6AE64U.js";
 import {
+  CdkScrollable
+} from "./chunk-OHNDYIZ4.js";
+import {
   animate,
   animateChild,
   group,
@@ -20,9 +23,6 @@ import {
   transition,
   trigger
 } from "./chunk-GHV3YKFN.js";
-import {
-  CdkScrollable
-} from "./chunk-OHNDYIZ4.js";
 import {
   A11yModule,
   Directionality,
@@ -1824,4 +1824,4 @@ export {
   _defaultParams,
   matDialogAnimations
 };
-//# sourceMappingURL=chunk-6L5HOU4E.js.map
+//# sourceMappingURL=chunk-COOHKNKQ.js.map
