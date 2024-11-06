@@ -1,10 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { Task } from '../../models/task';
 import { TaskService } from '../../services/task.service';
 import { MatDialog } from '@angular/material/dialog';
 import { AddTaskDialogComponent } from './add-task-dialog/add-task-dialog.component';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
+import { BackgroundTaskService } from '../../services/background-task.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-task',
@@ -12,27 +14,42 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./task.component.css'],
   standalone: true,
   imports: [
-    MaterialModule,CommonModule
+    MaterialModule, CommonModule
   ]
 })
-
-
-export class TaskComponent {
+export class TaskComponent implements OnInit, OnDestroy {
   tasksList: Task[] = [];
+  private taskUpdateSubscription: Subscription | undefined;
 
-  constructor(private dialog: MatDialog, private taskService: TaskService) {}
+  constructor(
+    private dialog: MatDialog, 
+    private taskService: TaskService,
+    private backgroundTaskService: BackgroundTaskService, 
+    private cdr: ChangeDetectorRef 
+  ) {}
 
   ngOnInit(): void {
     this.getAllTasks();
+
+    // Subscribe to task updates from BackgroundTaskService
+    this.taskUpdateSubscription = this.backgroundTaskService.taskUpdated.subscribe(() => {
+      this.getAllTasks(); 
+      this.cdr.detectChanges(); 
+    });
   }
 
-  getAllTasks() {
+  ngOnDestroy(): void {
+    // Unsubscribe from task updates if subscribed
+    this.taskUpdateSubscription?.unsubscribe();
+  }
+
+  getAllTasks(): void {
     this.taskService.GetTasks().subscribe((res) => {
       this.tasksList = res;
     });
   }
 
-  openAddTaskDialog() {
+  openAddTaskDialog(): void {
     const dialogRef = this.dialog.open(AddTaskDialogComponent);
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -40,7 +57,7 @@ export class TaskComponent {
     });
   }
 
-  openEditTaskDialog(task: Task) {
+  openEditTaskDialog(task: Task): void {
     const dialogRef = this.dialog.open(AddTaskDialogComponent, { data: task });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -48,18 +65,18 @@ export class TaskComponent {
     });
   }
 
-  deleteTask(id: number) {
+  deleteTask(id: number): void {
     this.taskService.DeleteTask(id).subscribe(() => this.getAllTasks());
   }
 
-  toggleCompleted(task: Task) {
+  toggleCompleted(task: Task): void {
     if (task.isCompleted) {
       task.isMissed = false; // Reset missed if task is completed
     }
     this.taskService.UpdateTask(task).subscribe();
   }
 
-  getCardStyle(task: any): any {
+  getCardStyle(task: Task): any {
     const colorMap: { [key: string]: string } = {
       '2024-11-05': '#FFCDD2', // Example color for tasks ending on Nov 5
       '2024-11-10': '#C8E6C9', // Example color for tasks ending on Nov 10
@@ -74,7 +91,4 @@ export class TaskComponent {
       color: '#000',
     };
   }
-  
-
-
 }
